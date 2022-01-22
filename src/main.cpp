@@ -28,12 +28,11 @@ int values_color()
 {
   for (int i = 0; Wire.available(); ++i)
     mas1[i] = Wire.read();
-  for (int i = 0; i < 9; ++i)
-  {
-    if (i == 4) mas[i] = (mas1[4] + mas1[5] + mas1[6]) / 3;
-    else if (i > 4) mas[i] = mas1[i + 2];
-    else mas[i] = mas1[i];
-  }
+  
+  for (int i = 0; i < 8; ++i)
+    mas[i] = mas1[i];
+  
+  mas[8] = (mas1[8] + mas1[9] + mas2[10]) / 3;
 
   long long sum = 0;
   sum = (mas[0] * 1 + mas[1] * 256 + mas[2] * 512 + mas[3] * 768 + mas[4] * 1024 + mas[5] * 1280 + mas[6] * 1536 + mas[7] * 1792 + mas[8] * 2048) / (mas[0] + mas[1] + mas[2] + mas[3] + mas[4] + mas[5] + mas[6] + mas[7] + mas[8]);
