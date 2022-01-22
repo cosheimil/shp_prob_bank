@@ -1,17 +1,14 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-#define ultr1_in
-#define ultr1_out
-
-#define ultr2_in
-#define ultr2_out
-
-#define ultr3_in
-#define ultr3_out
-
-#define ultr4_in
-#define ultr4_out
+#define ultr1_in 11
+#define ultr1_out 12
+#define ultr2_in 5
+#define ultr2_out 4
+#define ultr3_in 10
+#define ultr3_out 13
+#define ultr4_in 6
+#define ultr4_out 7
 
 #define adress 5
 #define bit 11
@@ -20,21 +17,43 @@
 #define I
 #define D
 
-byte mas[11];
+byte mas1[11], mas[9];
 
 int PID(int value)
 {
+
 }
 
-void values_color()
+int values_color()
 {
   for (int i = 0; Wire.available(); ++i)
-    mas[i] = Wire.read();
+    mas1[i] = Wire.read();
+  for (int i = 0; i < 9; ++i)
+  {
+    if (i == 4) mas[i] = (mas1[4] + mas1[5] + mas1[6]) / 3;
+    else if (i > 4) mas[i] = mas1[i + 2];
+    else mas[i] = mas1[i];
+  }
+
+  long long sum = 0;
+  sum = (mas[0] * 1 + mas[1] * 256 + mas[2] * 512 + mas[3] * 768 + mas[4] * 1024 + mas[5] * 1280 + mas[6] * 1536 + mas[7] * 1792 + mas[8] * 2048) / (mas[0] + mas[1] + mas[2] + mas[3] + mas[4] + mas[5] + mas[6] + mas[7] + mas[8]);
+  sum -= 1024;
+  return sum;
 }
 
 void setup()
 {
   Wire.begin();
+
+  pinMode(ultr1_in, INPUT);
+  pinMode(ultr2_in, INPUT);
+  pinMode(ultr3_in, INPUT);
+  pinMode(ultr4_in, INPUT);
+
+  pinMode(ultr1_out, OUTPUT);
+  pinMode(ultr2_out, OUTPUT);
+  pinMode(ultr3_out, OUTPUT);
+  pinMode(ultr4_out, OUTPUT);
 }
 
 void loop()
