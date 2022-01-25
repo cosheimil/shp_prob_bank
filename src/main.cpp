@@ -1,14 +1,13 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-#define ultr1_in 11
-#define ultr1_out 12
-#define ultr2_in 5
-#define ultr2_out 4
-#define ultr3_in 10
-#define ultr3_out 13
-#define ultr4_in 6
-#define ultr4_out 7
+#define ultr_in 11
+#define ultr_out 12
+
+#define napr_a 4
+#define napr_b 7
+#define speed_a 5
+#define speed_b 6
 
 #define adress 5
 #define bit 11
@@ -18,9 +17,9 @@ float I = 1.0;
 float D = 1.0;
 long long error;
 long long p_error;
-long long guess;
-long long Min;
-long long Max;
+long long guess = 0;
+long long Min = -255;
+long long Max = 255;
 int speed;
 
 byte mas1[11], mas[9];
@@ -64,21 +63,28 @@ int values_color()
   return sum;
 }
 
+int motors(int value)
+{
+  if (value > Max) value = Max;
+  if (value < Min) value = Min;
+
+  digitalWrite(napr_b, value > 0);
+  analogWrite(speed_b, value);
+  digitalWrite(napr_a, value > 0);
+  analogWrite(speed_b, value);
+}
 void setup()
 {
   Wire.begin();
 
-  pinMode(ultr1_in, INPUT);
-  pinMode(ultr2_in, INPUT);
-  pinMode(ultr3_in, INPUT);
-  pinMode(ultr4_in, INPUT);
+  pinMode(ultr_in, INPUT);
+  pinMode(ultr_out, OUTPUT);
 
-  pinMode(ultr1_out, OUTPUT);
-  pinMode(ultr2_out, OUTPUT);
-  pinMode(ultr3_out, OUTPUT);
-  pinMode(ultr4_out, OUTPUT);
+  pinMode(napr_a, OUTPUT);
+  pinMode(napr_b, OUTPUT);
+  pinMode(speed_a, OUTPUT);
+  pinMode(speed_a, OUTPUT);
 }
-
 void loop()
 {
 }
