@@ -1,9 +1,10 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-#define ultr_in 11
-#define ultr_out 12
-
+#define ultr1_in 11
+#define ultr1_out 12
+#define ultr2_in
+#define ultr2_out 
 #define napr_a 4
 #define napr_b 7
 #define speed_a 5
@@ -21,7 +22,7 @@ long long guess = 0;
 long long Min = -255;
 long long Max = 255;
 int speed;
-
+long duration, cm;
 byte mas1[11], mas[9];
 
 int PID(int value, int speed)
@@ -73,12 +74,52 @@ int motors(int value)
   digitalWrite(napr_a, value > 0);
   analogWrite(speed_b, value);
 }
+
+int dist1()
+{
+  digitalWrite(ultr1_out, LOW);
+  delayMicroseconds(5);
+  digitalWrite(ultr1_out, HIGH);
+
+  // Выставив высокий уровень сигнала, ждем около 10 микросекунд. В этот момент датчик будет посылать сигналы с частотой 40 КГц.
+  delayMicroseconds(10);
+  digitalWrite(ultr1_out, LOW);
+
+  //  Время задержки акустического сигнала на эхолокаторе.
+  duration = pulseIn(ultr1_in, HIGH);
+
+  // Теперь осталось преобразовать время в расстояние
+  cm = (duration / 2) / 29.1;
+  return cm;
+}
+
+int dist2()
+{
+  digitalWrite(ultr2_out, LOW);
+  delayMicroseconds(5);
+  digitalWrite(ultr2_out, HIGH);
+
+  // Выставив высокий уровень сигнала, ждем около 10 микросекунд. В этот момент датчик будет посылать сигналы с частотой 40 КГц.
+  delayMicroseconds(10);
+  digitalWrite(ultr2_out, LOW);
+
+  //  Время задержки акустического сигнала на эхолокаторе.
+  duration = pulseIn(ultr2_in, HIGH);
+
+  // Теперь осталось преобразовать время в расстояние
+  cm = (duration / 2) / 29.1;
+  return cm;
+}
+
+
 void setup()
 {
   Wire.begin();
 
-  pinMode(ultr_in, INPUT);
-  pinMode(ultr_out, OUTPUT);
+  pinMode(ultr1_in, INPUT);
+  pinMode(ultr1_out, OUTPUT);
+  pinMode(ultr2_in, INPUT);
+  pinMode(ultr2_out, OUTPUT);
 
   pinMode(napr_a, OUTPUT);
   pinMode(napr_b, OUTPUT);
@@ -87,4 +128,5 @@ void setup()
 }
 void loop()
 {
+  
 }
