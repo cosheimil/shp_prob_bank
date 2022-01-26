@@ -3,13 +3,13 @@
 
 #define ultr1_in 11
 #define ultr1_out 12
-#define ultr2_in
-#define ultr2_out 
+#define ultr2_in 10
+#define ultr2_out 9
 #define napr_a 4
 #define napr_b 7
 #define speed_a 5
 #define speed_b 6
-
+#define rast_do_banki 25
 #define adress 5
 #define bit 11
 
@@ -38,24 +38,29 @@ int PID(int value, int speed)
 
   p_error = error;
   // I part
-  long long i; i += error;
-  if (i < Min) i = Min;
-  if (i > Max) i = Max;
+  long long i;
+  i += error;
+  if (i < Min)
+    i = Min;
+  if (i > Max)
+    i = Max;
 
   long long res = p + i + d;
-  if (res > Max) return Max;
-  if (res < Min) return Min;
-  return res; 
+  if (res > Max)
+    return Max;
+  if (res < Min)
+    return Min;
+  return res;
 }
 
 int values_color()
 {
   for (int i = 0; Wire.available(); ++i)
     mas1[i] = Wire.read();
-  
+
   for (int i = 0; i < 8; ++i)
     mas[i] = mas1[i];
-  
+
   mas[8] = (mas1[8] + mas1[9] + mas1[10]) / 3;
 
   long long sum = 0;
@@ -66,12 +71,14 @@ int values_color()
 
 int motors(int value)
 {
-  if (value > Max) value = Max;
-  if (value < Min) value = Min;
+  if (value > Max)
+    value = Max;
+  if (value < Min)
+    value = Min;
 
   digitalWrite(napr_b, value > 0);
   analogWrite(speed_b, value);
-  digitalWrite(napr_a, value > 0);
+  digitalWrite(napr_a, value < 0);
   analogWrite(speed_b, value);
 }
 
@@ -111,7 +118,6 @@ int dist2()
   return cm;
 }
 
-
 void setup()
 {
   Wire.begin();
@@ -126,7 +132,42 @@ void setup()
   pinMode(speed_a, OUTPUT);
   pinMode(speed_a, OUTPUT);
 }
+
 void loop()
 {
-  
+  int banks_mas[4][2];
+  while (1)
+  {
+    int s;
+    motors(PID(values_color(), int((speed_a + speed_b) / 2)));
+    if (mas[8] >= 220)
+    {
+      s++;
+      if (s == 4)
+        break;
+
+      banks_mas[0][0] = int(dist1() > rast_do_banki);
+      banks_mas[0][1] = int(dist2() > rast_do_banki);
+      digitalWrite(napr_a, 1);
+      digitalWrite(napr_b, 1);
+      analogWrite(speed_b, 50);
+      analogWrite(speed_b, 50);
+      delay(100);
+      digitalWrite(napr_a, 0);
+      digitalWrite(napr_b, 0);
+      analogWrite(speed_b, 0);
+      analogWrite(speed_b, 0);
+    }
+  }
+
+  while (1)
+  {
+    values_color();
+    digitalWrite(napr_a, 0);
+    digitalWrite(napr_b, 1);
+    analogWrite(speed_a, 0);
+    analogWrite(speed_b, 255);
+    if (mas[4] >= 220)
+      break;
+  }
 }
